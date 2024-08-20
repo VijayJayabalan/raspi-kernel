@@ -1574,7 +1574,7 @@ void __hci_req_enable_advertising(struct hci_request *req)
 	if (!is_advertising_allowed(hdev, connectable))
 		return;
 
-	if (hci_dev_test_flag(hdev, HCI_LE_ADV))
+	//if (hci_dev_test_flag(hdev, HCI_LE_ADV))
 		__hci_req_disable_advertising(req);
 
 	/* Clear the HCI_LE_ADV bit temporarily so that the
@@ -3169,11 +3169,14 @@ static int active_scan(struct hci_request *req, unsigned long opt)
 	 * address (when privacy feature has been enabled) or non-resolvable
 	 * private address.
 	 */
-	err = hci_update_random_address(req, true, scan_use_rpa(hdev),
+	 
+	if (use_ll_privacy(hdev)){
+		err = hci_update_random_address(req, true, scan_use_rpa(hdev),
 					&own_addr_type);
-	if (err < 0)
-		own_addr_type = ADDR_LE_DEV_PUBLIC;
-
+		if (err < 0)
+			own_addr_type = ADDR_LE_DEV_PUBLIC;
+	}
+	
 	hci_dev_lock(hdev);
 	if (hci_is_adv_monitoring(hdev)) {
 		/* Duplicate filter should be disabled when some advertisement
